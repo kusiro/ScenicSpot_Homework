@@ -1,65 +1,103 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, { useState, useRef, useCallback } from 'react'
+
+import useScenSearch from '../components/useScenSearch'
 
 export default function Home() {
+  const [query, setQuery] = useState('')
+  const [pageNumber, setPageNumber] = useState(30)
+  const citys = [
+    'Taipei',
+    'NewTaipei',
+    'Taoyuan',
+    'Hsinchu',
+    'Taichung',
+    'Miaoli',
+    'Changhua',
+    'Yunlin',
+    'Nantou',
+    'Chiayi',
+    'Tainan',
+    'Kaohsiung',
+    'Pingtung',
+    'Yilan',
+    'Hualien',
+    'Taitung'
+  ]
+
+  const {
+    scens,
+    hasMore,
+    loading,
+    error
+  } = useScenSearch(query, pageNumber)
+
+  const observer = useRef()
+  const lastElementRef = useCallback(node => {
+    if (loading) return
+    if (observer.current) observer.current.disconnect()
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPageNumber(prevPageNumber => prevPageNumber + 1)
+      }
+    })
+    if (node) observer.current.observe(node)
+  }, [loading, hasMore])
+
+  function handleChange(e) {
+    setQuery(e.target.value)
+    setPageNumber(1)
+    window.location.href = `#/ScenicSpot${e.target.value}`;
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+    <>
+      <div className="wrapper">
+        <div className="btn-wrapper">
+          <button onClick={handleChange}>all</button>
+          {citys.map((city, index) => {
+            return <button href={city} key={index} onClick={handleChange} value={`/${city}`}>{city}</button>
+          })}
         </div>
-      </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
+        <div className="content">
+          {scens.map((scen, index) => {
+            return (
+              <div ref={scens.length === index + 1 ? lastElementRef : null} key={index}>
+                <h1>{scen.title}</h1>
+              </div>
+            )
+          })}
+
+          <div>{loading && 'Loading...'}</div>
+          <div>{error && 'Error'}</div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .wrapper {
+          display: flex;
+          flex-wrap: wrap;
+          height: 100vh;
+          align-items: center;
+          justify-content: space-around;
+          overflow: hidden;
+        }
+        .btn-wrapper {
+          display: flex;
+          flex-direction: column;
+        }
+        .btn-wrapper button{
+          font-size: 1.2rem;
+          margin: 0.3rem 0;
+        }
+        .content {
+          overflow-y: scroll;
+          height: 80%;
+          width: 80%;
+          border: solid 1px;
+          padding: 1rem;
+        }
+      `}</style>
+    </>
   )
 }
