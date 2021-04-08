@@ -63,7 +63,8 @@ export default function Home() {
           {scens.map((scen, index) => {
             return (
               <div ref={scens.length === index + 1 ? lastElementRef : null} key={index}>
-                <h1>{scen.title}</h1>
+                <h1>{scen.Name}</h1>
+                <p>{scen.Description}</p>
               </div>
             )
           })}
