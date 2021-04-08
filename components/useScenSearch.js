@@ -4,8 +4,8 @@ import jsSHA from '../lib/sha1'
   
 export default function useScenSearch(query, pageNumber) {
   function GetAuthorizationHeader() {
-    var AppID = 'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF';
-    var AppKey = 'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF';
+    var AppID = '4b83095654904ec9a82f1afbaf928bf5';
+    var AppKey = 'A70NOkt0hzIF02-CiVmZmwEQm4k';
 
     var GMTString = new Date().toGMTString();
     var ShaObj = new jsSHA('SHA-1', 'TEXT');
